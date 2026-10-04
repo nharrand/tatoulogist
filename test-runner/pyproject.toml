@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tatou-test"
+version = "0.1.0"
+description = "Test bench for multiple instances of the Tatou REST API"
+readme = { text = "Run `tatou-test --help`.", content-type = "text/plain" }
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31",
+    "PGPy>=0.6",
+    "reportlab>=4.0",
+    "Flask>=3.0",
+    "rmap @ git+https://github.com/nharrand/RMAP.git@v1.0.2",
+    # PGPy imports imghdr, which Python 3.13 removed from the standard library.
+    "standard-imghdr; python_version >= '3.13'",
+]
+
+[project.scripts]
+tatou-test = "CLI:main"
+tatou-flags = "generate_flags:main"
+tatou-web = "webapp.__main__:main"
+tatou-rmap-worker = "rmap_worker:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+py-modules = ["CLI", "generate_flags", "rmap_worker"]
+
+[tool.setuptools.package-data]
+"webapp" = ["templates/*.html", "static/*"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["model*", "steps*", "scenarii*", "webapp*"]

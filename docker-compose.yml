@@ -1,0 +1,78 @@
+# Lab deployment for the Software Security course.
+#
+# WARNING: the webapp and backup services are INTENTIONALLY VULNERABLE (two
+# planted flags). Deploy only on the isolated student network. Never expose this
+# to the internet or to any network carrying real data. See CTF_INSTRUCTORS.md.
+#
+# Three services:
+#   webapp       the report dashboard + non-RMAP reruns   (VULNERABLE: SSTI)
+#   rmap-runner  runs RMAP scenarios on demand/on a queue (NOT vulnerable)
+#   backup       periodic cron backup of the data volume  (VULNERABLE: cmd injection)
+#
+# Secrets and flags come from a .env file next to this one (see .env.example).
+# The RMAP private key lives only on rmap-runner (bind-mounted ./keys), so the
+# vulnerable services cannot read it, and it is never inside the backup archive.
+
+services:
+  webapp:
+    build: ./test-runner
+    environment:
+      TATOU_ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in .env}
+      TATOU_SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in .env}
+      TATOU_TRUST_PROXY: "1"
+      TATOU_TIMEOUT: "5"
+      TATOU_REMOTE_SCENARIOS: "RmapHandshake"
+      # Flag 1 lives only in this process's environment; it is never written to
+      # disk or into a page. It is reachable through the webapp's SSTI.
+      FLAG_1: ${FLAG_1:?set FLAG_1 in .env}
+      # NOTE: no RMAP identity, no passphrase, no key mount here.
+    volumes:
+      - ./data:/data
+      - reports:/reports
+      - control:/control
+    ports:
+      - "8000:8000"
+    networks: [lab]
+    restart: unless-stopped
+
+  rmap-runner:
+    build: ./test-runner
+    command: ["tatou-rmap-worker"]
+    environment:
+      TATOU_TIMEOUT: "5"
+      TATOU_REMOTE_SCENARIOS: "RmapHandshake"
+      TATOU_RMAP_IDENTITY: ${RMAP_IDENTITY:?set RMAP_IDENTITY in .env}
+      TATOU_KEY_PASSPHRASE: ${KEY_PASSPHRASE:-}
+      TATOU_POLL_INTERVAL: "1"
+      # No flags here: this service is not a CTF target.
+    volumes:
+      - ./data:/data
+      - reports:/reports
+      - control:/control
+      # The RMAP private key + passphrase file live ONLY on this service,
+      # overlaid at /data/keys so the test code finds them where it expects.
+      - ./keys:/data/keys:ro
+    networks: [lab]
+    restart: unless-stopped
+
+  backup:
+    build: ./backup
+    environment:
+      # Flag 2 lives only in this container (written to /root/flag_2.txt by the
+      # entrypoint). The data volume is read-only here and Flag 2 is on no shared
+      # volume, so reaching it requires code execution inside this container.
+      FLAG_2: ${FLAG_2:?set FLAG_2 in .env}
+    volumes:
+      - ./data:/data:ro
+      - reports:/reports
+      - backups:/backups
+    networks: [lab]
+    restart: unless-stopped
+
+volumes:
+  reports:
+  control:
+  backups:
+
+networks:
+  lab:

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Admin login{% endblock %}
+{% block body %}
+<div class="login">
+  <h1>Admin access</h1>
+  {% if error %}<div class="flash">{{ error }}</div>{% endif %}
+  <form method="post">
+    <label for="pw">Password</label>
+    <input id="pw" name="password" type="password" autofocus autocomplete="current-password">
+    <button class="btn" type="submit">Sign in</button>
+  </form>
+</div>
+{% endblock %}

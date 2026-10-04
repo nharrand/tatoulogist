@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ group }} — Tatou test reports{% endblock %}
+{% block body %}
+<header class="page">
+  <div>
+    <h1>{{ group }}</h1>
+    <div class="sub">test scenarios · last run per scenario</div>
+  </div>
+  <div class="right">
+    {% if is_admin %}<a class="btn small" href="{{ url_for('admin_view') }}">All groups</a>{% endif %}
+  </div>
+</header>
+<div class="rows" id="group-table" data-group="{{ group }}"></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='app.js') }}"></script>{% endblock %}

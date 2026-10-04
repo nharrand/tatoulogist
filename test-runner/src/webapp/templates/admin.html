@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Admin — Tatou test reports{% endblock %}
+{% block body %}
+<header class="page">
+  <div>
+    <h1>All groups</h1>
+    <div class="sub">{{ groups|length }} group(s) · expand a group to see its scenarios</div>
+  </div>
+  <div class="right">
+    <form method="post" action="{{ url_for('admin_logout') }}">
+      <button class="btn small" type="submit">Log out</button>
+    </form>
+  </div>
+</header>
+<div class="rows" id="admin-table"></div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='app.js') }}"></script>{% endblock %}

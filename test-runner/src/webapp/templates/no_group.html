@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}No group for this address{% endblock %}
+{% block body %}
+<header class="page"><div><h1>No group for this address</h1>
+<div class="sub">source IP {{ ip or "unknown" }}</div></div></header>
+<p class="empty">This page shows the test results for the group served from your
+network location, but no group in <code>groups.csv</code> matches
+<code>{{ ip or "your address" }}</code>. If you reach this from a group machine
+and still see this message, the server may not be reading the forwarded client
+address. An administrator can sign in at <a href="{{ url_for('admin_login') }}">/admin</a>.</p>
+{% endblock %}
