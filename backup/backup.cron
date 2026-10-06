@@ -1,2 +1,2 @@
-# Run the backup every minute (frequent for the lab; raise for real use).
-* * * * * root /usr/local/bin/python3 /opt/backup/backup.py >> /var/log/backup.log 2>&1
+# Run the backup daily.
+0 0 * * * root /usr/local/bin/python3 /opt/backup/backup.py >> /var/log/backup.log 2>&1
